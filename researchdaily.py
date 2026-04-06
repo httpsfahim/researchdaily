@@ -20,7 +20,7 @@ model = genai.GenerativeModel('gemini-3.1-flash-lite-preview')
 
 # -------------------- TYPING ANIMATION --------------------
 
-def type_text(text, speed=0.005):
+def type_text(text, speed=0.02):
     placeholder = st.empty()
     typed = ""
     for char in text:
