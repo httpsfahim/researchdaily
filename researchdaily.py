@@ -6,7 +6,6 @@ import os
 
 st.set_page_config(page_title="ResearchDaily", layout="centered", menu_items={})
 
-# Load API keys
 gemini_api_key = os.getenv("GEMINI_API")
 ss_api_key = os.getenv("SEMANTIC_SCHOLAR_API")
 
@@ -14,12 +13,8 @@ if not gemini_api_key or not ss_api_key:
     st.error("⚠️ One or more API keys are missing. Please set GEMINI_API and SEMANTIC_SCHOLAR_API.")
 
 genai.configure(api_key=gemini_api_key)
+model = genai.GenerativeModel('gemini-3.1-flash-lite-preview')
 
-# ✅ FIXED MODEL ONLY
-model = genai.GenerativeModel('models/gemini-1.5-flash')
-
-
-# -------------------- TYPING ANIMATION --------------------
 
 def type_text(text, speed=0.02):
     placeholder = st.empty()
@@ -29,8 +24,6 @@ def type_text(text, speed=0.02):
         placeholder.markdown(typed)
         time.sleep(speed)
 
-
-# -------------------- FUNCTIONS --------------------
 
 def get_tone_and_temperature(choice):
     settings = {
@@ -102,7 +95,6 @@ Tone: {tone_map[tone]}
 
     try:
         time.sleep(1)
-
         response = model.generate_content(
             prompt,
             generation_config={
@@ -113,12 +105,9 @@ Tone: {tone_map[tone]}
             }
         )
         return response.text
-
     except Exception as e:
         return f'Error generating summary: {e}'
 
-
-# -------------------- UI --------------------
 
 st.markdown("""
 <style>
@@ -165,8 +154,6 @@ tone_choice = st.radio(
 search = st.button("Search")
 
 
-# -------------------- MAIN --------------------
-
 if search:
     if not query:
         st.warning("Please enter a research topic.")
@@ -198,7 +185,6 @@ if search:
                         year = paper.get('year')
                         abstract = paper.get('abstract')
 
-                        # ✅ KEEP TYPE_TEXT (as you requested)
                         type_text(f"### {i}. {title}")
                         type_text(f"**Authors:** {authors}")
                         type_text(f"**Year:** {year}")
