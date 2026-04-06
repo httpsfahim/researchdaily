@@ -14,7 +14,9 @@ if not gemini_api_key or not ss_api_key:
     st.error("⚠️ One or more API keys are missing. Please set GEMINI_API and SEMANTIC_SCHOLAR_API.")
 
 genai.configure(api_key=gemini_api_key)
-model = genai.GenerativeModel('gemini-3.1-flash-lite-preview')  # unchanged
+
+# ✅ FIXED MODEL ONLY
+model = genai.GenerativeModel('models/gemini-1.5-flash')
 
 
 # -------------------- TYPING ANIMATION --------------------
@@ -99,7 +101,7 @@ Tone: {tone_map[tone]}
 """
 
     try:
-        time.sleep(1)  # ✅ rate limit protection added
+        time.sleep(1)
 
         response = model.generate_content(
             prompt,
@@ -181,7 +183,6 @@ if search:
         elif response.status_code == 200:
             data = response.json()
 
-            # ✅ improvement 3: empty response safety
             if not data.get('data'):
                 st.error("No results returned.")
             else:
@@ -197,10 +198,10 @@ if search:
                         year = paper.get('year')
                         abstract = paper.get('abstract')
 
-                        # ✅ FIXED typing issue
-                        st.markdown(f"### {i}. {title}")
-                        st.markdown(f"**Authors:** {authors}")
-                        st.markdown(f"**Year:** {year}")
+                        # ✅ KEEP TYPE_TEXT (as you requested)
+                        type_text(f"### {i}. {title}")
+                        type_text(f"**Authors:** {authors}")
+                        type_text(f"**Year:** {year}")
 
                         with st.spinner(f"Summarizing paper {i}..."):
                             summary = generate_summary(title, abstract, tone, temperature)
