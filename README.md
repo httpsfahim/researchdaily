@@ -4,7 +4,6 @@
 
 ---
 
-# 📄 ResearchDaily
 
 🚀 **Live Demo:** [Try the app](https://researchdaily.streamlit.app/)
 
@@ -103,7 +102,7 @@ This setup ensures:
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/researchdaily.git
+git clone https://github.com/httpsfahim/researchdaily
 cd researchdaily
 ```
 
@@ -129,7 +128,7 @@ SEMANTIC_SCHOLAR_API=your_semantic_scholar_api_key
 ## ▶️ Run the App
 
 ```bash
-streamlit run app.py
+streamlit run researchdaily.py
 ```
 
 ---
