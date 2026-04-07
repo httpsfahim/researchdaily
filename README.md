@@ -4,7 +4,6 @@
 
 ---
 
-
 🚀 **Live Demo:** [Try the app](https://researchdaily.streamlit.app/)
 
 **ResearchDaily** is a Streamlit-based web
@@ -85,6 +84,48 @@ This setup ensures:
 * Balanced readability for conversational mode
 * Strong emphasis in bold mode
 * Maximum creativity in creative mode
+
+---
+
+## 🧠 Prompt Engineering
+
+The application uses carefully designed prompts to ensure high-quality, structured, and accurate summaries.
+
+### 🆕 Enhanced Summary Prompt
+
+```
+prompt = f"""
+SYSTEM INSTRUCTION:
+You are an advanced AI-powered research assistant. Your role is to analyze academic research papers and generate clear, accurate, and insightful summaries. You adapt your tone based on user preference while maintaining factual correctness and depth.
+
+TASK:
+Summarize the given research paper in 150–200 words.
+
+CONTEXT:
+This is a scholarly research paper retrieved from Semantic Scholar. The content represents academic work, so your explanation should reflect proper understanding of research structure, including objectives, methodology, findings, and implications.
+
+INPUT DATA:
+Title: {title}
+Abstract: {abstract}
+
+OUTPUT REQUIREMENTS:
+- Write in a well-structured paragraph format (no bullet points)
+- Clearly explain:
+  • the purpose of the research  
+  • the methodology (if implied)  
+  • key findings  
+  • why the research is important  
+- Avoid generic phrases and repetition  
+- Do not hallucinate information beyond the abstract  
+- Maintain clarity, coherence, and readability  
+
+TONE:
+{tone_map[tone]}
+
+FINAL INSTRUCTION:
+Produce a concise, insightful, and human-like summary that demonstrates true understanding of the research, not just rephrasing.
+"""
+```
 
 ---
 
