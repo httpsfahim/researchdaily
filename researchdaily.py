@@ -3,9 +3,19 @@ import requests
 import time
 import google.generativeai as genai
 import os
+import json
+from streamlit_lottie import st_lottie
 
 st.set_page_config(page_title="ResearchDaily", layout="centered", menu_items={})
 
+# -------------------- LOAD ANIMATION --------------------
+def load_lottie(filepath):
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+book_anim = load_lottie("Book.json")
+
+# -------------------- API KEYS --------------------
 gemini_api_key = os.getenv("GEMINI_API")
 ss_api_key = os.getenv("SEMANTIC_SCHOLAR_API")
 
@@ -15,7 +25,7 @@ if not gemini_api_key or not ss_api_key:
 genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-3.1-flash-lite-preview')
 
-
+# -------------------- TYPE EFFECT --------------------
 def type_text(text, speed=0.02):
     placeholder = st.empty()
     typed = ""
@@ -24,7 +34,7 @@ def type_text(text, speed=0.02):
         placeholder.markdown(typed)
         time.sleep(speed)
 
-
+# -------------------- TONE --------------------
 def get_tone_and_temperature(choice):
     settings = {
         '1': ('professional', 0.3),
@@ -34,7 +44,7 @@ def get_tone_and_temperature(choice):
     }
     return settings[choice]
 
-
+# -------------------- FETCH PAPERS --------------------
 def fetch_papers(query, limit, retries=3, delay=5):
     url = 'https://api.semanticscholar.org/graph/v1/paper/search'
     params = {
@@ -49,14 +59,13 @@ def fetch_papers(query, limit, retries=3, delay=5):
         if response.status_code == 200:
             return response
         elif response.status_code == 429:
-            wait = delay * (attempt + 1)
-            time.sleep(wait)
+            time.sleep(delay * (attempt + 1))
         else:
             return response
 
     return response
 
-
+# -------------------- GENERATE SUMMARY --------------------
 def generate_summary(title, abstract, tone, temperature):
     if not abstract:
         return 'No abstract available.'
@@ -108,7 +117,7 @@ Tone: {tone_map[tone]}
     except Exception as e:
         return f'Error generating summary: {e}'
 
-
+# -------------------- UI STYLES --------------------
 st.markdown("""
 <style>
 #MainMenu {visibility: hidden;}
@@ -135,8 +144,16 @@ h1, h2, h3, p, div, span, label {
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📄 ResearchDaily")
+# -------------------- HEADER (ANIMATION + TITLE) --------------------
+col1, col2 = st.columns([1, 4])
 
+with col1:
+    st_lottie(book_anim, height=90)
+
+with col2:
+    st.markdown("## ResearchDaily")
+
+# -------------------- INPUTS --------------------
 query = st.text_input("Enter a research topic")
 limit = st.slider("Number of papers", 1, 10, 3)
 
@@ -153,7 +170,7 @@ tone_choice = st.radio(
 
 search = st.button("Search")
 
-
+# -------------------- MAIN --------------------
 if search:
     if not query:
         st.warning("Please enter a research topic.")
