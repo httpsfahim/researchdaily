@@ -4,11 +4,10 @@ import time
 import google.generativeai as genai
 import os
 import json
-from streamlit_lottie import st_lottie
 
 st.set_page_config(page_title="ResearchDaily", layout="centered", menu_items={})
 
-# -------------------- LOAD ANIMATION --------------------
+# -------------------- LOAD LOTTIE --------------------
 def load_lottie(filepath):
     with open(filepath, "r") as f:
         return json.load(f)
@@ -144,14 +143,22 @@ h1, h2, h3, p, div, span, label {
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------- HEADER (ANIMATION + TITLE) --------------------
-col1, col2 = st.columns([1, 4])
+# -------------------- HEADER (BOOK ANIMATION + TITLE) --------------------
+st.markdown(f"""
+<div style="display:flex;align-items:center;justify-content:center;">
+    <lottie-player 
+        src='data:application/json,{json.dumps(book_anim)}'
+        background='transparent'  
+        speed='1'  
+        style='width:90px;height:90px;'  
+        loop  
+        autoplay>
+    </lottie-player>
+    <h2 style="margin-left:10px;">ResearchDaily</h2>
+</div>
 
-with col1:
-    st_lottie(book_anim, height=90)
-
-with col2:
-    st.markdown("## ResearchDaily")
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+""", unsafe_allow_html=True)
 
 # -------------------- INPUTS --------------------
 query = st.text_input("Enter a research topic")
