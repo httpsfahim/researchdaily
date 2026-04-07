@@ -109,7 +109,6 @@ Tone: {tone_map[tone]}
         return f'Error generating summary: {e}'
 
 
-# 🔥 UI + 3D BOOK (REPLACES TITLE)
 st.markdown("""
 <style>
 #MainMenu {visibility: hidden;}
@@ -133,61 +132,11 @@ h1, h2, h3, p, div, span, label {
     background-color: black !important;
     color: white !important;
 }
-
-/* 📖 3D BOOK */
-.scene {
-    perspective: 1200px;
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.book {
-    position: relative;
-    width: 140px;
-    height: 180px;
-    transform-style: preserve-3d;
-}
-
-.cover {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: crimson;
-    transform-origin: left;
-    transition: transform 0.6s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: white;
-    backface-visibility: hidden;
-}
-
-.pages {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: white;
-    transform: translateZ(-2px);
-}
-
-.scene:hover .cover {
-    transform: rotateY(-150deg);
-}
 </style>
-
-<div class="scene">
-    <div class="book">
-        <div class="cover">ResearchDaily</div>
-        <div class="pages"></div>
-    </div>
-</div>
 """, unsafe_allow_html=True)
 
+st.title("📄 ResearchDaily")
 
-# INPUTS
 query = st.text_input("Enter a research topic")
 limit = st.slider("Number of papers", 1, 10, 3)
 
@@ -205,7 +154,6 @@ tone_choice = st.radio(
 search = st.button("Search")
 
 
-# MAIN LOGIC
 if search:
     if not query:
         st.warning("Please enter a research topic.")
