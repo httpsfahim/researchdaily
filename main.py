@@ -6,6 +6,8 @@ import time
 import os
 import google.generativeai as genai
 
+from dotenv import load_dotenv
+load_dotenv()
 app = FastAPI(title="ResearchDaily API")
 
 app.add_middleware(
