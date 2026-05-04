@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResearchDaily</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e1208;
+      --surface:   #161c0e;
+      --surface2:  #1e2914;
+      --border:    #2d3d1a;
+      --accent:    #a8d060;
+      --accent2:   #6fa832;
+      --text:      #e8eddc;
+      --muted:     #7a8c60;
+      --danger:    #e06060;
+      --radius:    10px;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Header ── */
+    header {
+      padding: 2rem 2.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5rem;
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .logo span { font-style: italic; color: var(--text); }
+    .tagline {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding-bottom: 0.25rem;
+    }
+
+    /* ── Main layout ── */
+    main { flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    /* ── Search panel ── */
+    .search-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    input[type="text"]::placeholder { color: var(--muted); }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+
+    /* Slider */
+    .slider-wrap { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      height: 4px;
+      cursor: pointer;
+    }
+    .slider-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      min-width: 1.2rem;
+      text-align: center;
+    }
+
+    /* Tone pills */
+    .tone-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .pill {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pill:hover { border-color: var(--accent); color: var(--accent); }
+    .pill.active { background: var(--accent); border-color: var(--accent); color: #0e1208; font-weight: 500; }
+
+    /* Search button */
+    .btn-search {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--accent);
+      color: #0e1208;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      font-weight: 500;
+    }
+    .btn-search:hover { background: #c0e870; }
+    .btn-search:active { transform: scale(0.99); }
+    .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Status ── */
+    .status {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 1rem;
+      letter-spacing: 0.06em;
+    }
+    .status.error { color: var(--danger); }
+
+    /* Loading dots */
+    .dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+      100% { content: ''; }
+    }
+
+    /* ── Paper cards ── */
+    .papers { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .paper-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .card-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      background: rgba(168,208,96,0.12);
+      border: 1px solid rgba(168,208,96,0.25);
+      border-radius: 4px;
+      padding: 0.2rem 0.45rem;
+      white-space: nowrap;
+      margin-top: 0.15rem;
+    }
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.15rem;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .card-meta {
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .meta-item strong { color: var(--text); font-weight: 400; }
+
+    .card-body { padding: 1.25rem 1.5rem; }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 0.6rem;
+    }
+    .summary-text {
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: #c8d4b4;
+    }
+
+    /* Abstract toggle */
+    .abstract-toggle {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      text-transform: uppercase;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .toggle-btn:hover { color: var(--accent); }
+    .abstract-text {
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1rem 2.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">Research<span>Daily</span></div>
+    <div class="tagline">AI-powered academic discovery</div>
+  </header>
+
+  <main>
+    <div class="search-panel">
+      <label>Research Topic</label>
+      <input
+        type="text"
+        v-model="query"
+        placeholder="e.g. transformer attention mechanisms"
+        @keyup.enter="search"
+      />
+
+      <div class="row">
+        <div>
+          <label>Papers — <span style="color:var(--accent);font-family:'DM Mono',monospace">{{ limit }}</span></label>
+          <div class="slider-wrap">
+            <input type="range" min="1" max="10" v-model.number="limit"/>
+            <span class="slider-val">{{ limit }}</span>
+          </div>
+        </div>
+        <div>
+          <label>Summary Tone</label>
+          <div class="tone-pills">
+            <button
+              v-for="t in tones"
+              :key="t.value"
+              class="pill"
+              :class="{ active: tone === t.value }"
+              @click="tone = t.value"
+            >{{ t.label }}</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-search" :disabled="loading" @click="search">
+        {{ loading ? 'Searching' : 'Search Papers' }}
+      </button>
+    </div>
+
+    <!-- Status messages -->
+    <div v-if="loading" class="status">
+      <span class="dots">Fetching &amp; summarising papers</span>
+    </div>
+    <div v-if="error" class="status error">⚠ {{ error }}</div>
+
+    <!-- Results -->
+    <div class="papers" v-if="papers.length">
+      <div
+        class="paper-card"
+        v-for="(paper, i) in papers"
+        :key="i"
+        :style="{ animationDelay: i * 0.08 + 's' }"
+      >
+        <div class="card-header">
+          <span class="card-num">{{ String(i+1).padStart(2,'0') }}</span>
+          <div class="card-title">{{ paper.title }}</div>
+        </div>
+        <div class="card-meta">
+          <div class="meta-item" v-if="paper.authors">Authors &nbsp;<strong>{{ paper.authors }}</strong></div>
+          <div class="meta-item" v-if="paper.year">Year &nbsp;<strong>{{ paper.year }}</strong></div>
+        </div>
+        <div class="card-body">
+          <div class="section-label">AI Summary · {{ tone }}</div>
+          <div class="summary-text">{{ paper.summary }}</div>
+
+          <div class="abstract-toggle" v-if="paper.abstract">
+            <button class="toggle-btn" @click="paper._showAbstract = !paper._showAbstract">
+              {{ paper._showAbstract ? '▲ Hide abstract' : '▼ Show original abstract' }}
+            </button>
+            <div class="abstract-text" v-if="paper._showAbstract">{{ paper.abstract }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>ResearchDaily — powered by Gemini + Semantic Scholar</span>
+    <span>{{ papers.length ? papers.length + ' papers loaded' : '' }}</span>
+  </footer>
+</div>
+
+<script>
+const { createApp, ref, reactive } = Vue;
+
+createApp({
+  setup() {
+    const API_BASE = 'http://localhost:8000'; // Change to your FastAPI URL
+
+    const query = ref('');
+    const limit = ref(3);
+    const tone  = ref('professional');
+    const loading = ref(false);
+    const error   = ref('');
+    const papers  = ref([]);
+
+    const tones = [
+      { value: 'professional',  label: 'Professional' },
+      { value: 'conversational',label: 'Conversational' },
+      { value: 'bold',          label: 'Bold' },
+      { value: 'creative',      label: 'Creative' },
+    ];
+
+    async function search() {
+      if (!query.value.trim()) { error.value = 'Please enter a research topic.'; return; }
+      loading.value = true;
+      error.value   = '';
+      papers.value  = [];
+
+      try {
+        const res = await fetch(`${API_BASE}/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query.value, limit: limit.value, tone: tone.value }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          error.value = data.detail || `Error ${res.status}`;
+          return;
+        }
+
+        // Add reactive _showAbstract toggle per paper
+        papers.value = data.papers.map(p => reactive({ ...p, _showAbstract: false }));
+      } catch (e) {
+        error.value = 'Could not connect to the API. Is the FastAPI server running?';
+      } finally {
+        loading.value = false;
+      }
+    }
+
+    return { query, limit, tone, loading, error, papers, tones, search };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
